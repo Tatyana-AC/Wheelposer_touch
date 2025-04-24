@@ -3,7 +3,7 @@ Wheelposer capacitive touch sense
 
 Must download 
 python side:
-bleak
+pip install bleak
 
 Arduino side: 
 ArduinoBLE.h
