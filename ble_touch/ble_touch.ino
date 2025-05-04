@@ -2,30 +2,38 @@
 #include <Arduino_APDS9960.h>
 #include <CapacitiveSensor.h>
 
-// Capacitive sensor setup
 CapacitiveSensor touchSensor = CapacitiveSensor(4, 2);
+
 long baseline = 0;
-long threshold = 50; // Adjust this value based on testing
+float thresholdFactor = 0.92;
+float releaseFactor = 0.96;
+bool touchActive = false;
+
+#define OSC_WINDOW_SIZE 5
+bool touchHistory[OSC_WINDOW_SIZE] = {false};
+int historyIndex = 0;
+int oscillationCount = 0;
+int maxOscillation = 3;
+
 unsigned long lastCalibrationTime = 0;
-const unsigned long CALIBRATION_INTERVAL = 10000;
+const unsigned long CALIBRATION_INTERVAL = 15000;
 
-// Pin definitions
-const int ledPin = 8;
+const int ledPin = 13;
 
-// BLE setup
 BLEService messageService("19B10000-E8F2-537E-4F6C-D104768A1214");
-BLEStringCharacteristic messageCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite | BLENotify, 512);
+BLEStringCharacteristic messageCharacteristic(
+  "19B10001-E8F2-537E-4F6C-D104768A1214",
+  BLERead | BLEWrite | BLENotify, 512
+);
 
 void setup() {
   pinMode(ledPin, OUTPUT);
-
   Serial.begin(9600);
   unsigned long startTime = millis();
-  while (!Serial && millis() - startTime < 5000); // Optional serial wait
+  while (!Serial && millis() - startTime < 3000);
 
-  // Initialize BLE
   if (!BLE.begin()) {
-    if (Serial) Serial.println("Starting BLE failed!");
+    if (Serial) Serial.println("BLE failed!");
     while (1);
   }
 
@@ -34,14 +42,12 @@ void setup() {
   messageService.addCharacteristic(messageCharacteristic);
   BLE.addService(messageService);
   messageCharacteristic.writeValue("BLE ready");
-
   BLE.advertise();
-  if (Serial) Serial.println("Bluetooth device active, waiting for connections...");
 
-  delay(2000); // Stabilize sensor
+  delay(2000);
   baseline = getAverageReading(300);
   if (Serial) {
-    Serial.print("Baseline: ");
+    Serial.print("Initial Baseline: ");
     Serial.println(baseline);
   }
 }
@@ -51,27 +57,57 @@ void loop() {
 
   if (central) {
     if (Serial) {
-      Serial.print("Connected to central: ");
+      Serial.print("Connected to: ");
       Serial.println(central.address());
     }
 
     while (central.connected()) {
-      long currentValue = touchSensor.capacitiveSensor(40);
+      long currentValue = getAverageReading(10);
+      bool isTouchedNow;
 
-      // Touch detection logic
-      if (currentValue < threshold) {
-        digitalWrite(ledPin, HIGH);
-        messageCharacteristic.writeValue("Touch detected");
+      if (!touchActive) {
+        isTouchedNow = currentValue < (baseline * thresholdFactor);
       } else {
-        digitalWrite(ledPin, LOW);
-        messageCharacteristic.writeValue("No touch");
+        isTouchedNow = currentValue < (baseline * releaseFactor);
       }
 
-      delay(100); // Throttle BLE updates to reduce spam
+      touchHistory[historyIndex] = isTouchedNow;
+      historyIndex = (historyIndex + 1) % OSC_WINDOW_SIZE;
+
+      oscillationCount = 0;
+      for (int i = 1; i < OSC_WINDOW_SIZE; i++) {
+        if (touchHistory[i] != touchHistory[i - 1]) {
+          oscillationCount++;
+        }
+      }
+
+      bool finalTouchState = isTouchedNow;
+      if (oscillationCount >= maxOscillation) {
+        finalTouchState = true;
+      }
+
+      if (finalTouchState != touchActive) {
+        touchActive = finalTouchState;
+        digitalWrite(ledPin, touchActive ? HIGH : LOW);
+      }
+
+      // Send raw value continuously for plotting
+      messageCharacteristic.writeValue(String(currentValue));
+
+      if (millis() - lastCalibrationTime > CALIBRATION_INTERVAL && !touchActive) {
+        baseline = getAverageReading(100);
+        lastCalibrationTime = millis();
+        if (Serial) {
+          Serial.print("Recalibrated Baseline: ");
+          Serial.println(baseline);
+        }
+      }
+
+      delay(30); // Faster updates for smoother graphing
     }
 
     if (Serial) {
-      Serial.print("Disconnected from central: ");
+      Serial.print("Disconnected from: ");
       Serial.println(central.address());
     }
   }
@@ -80,8 +116,8 @@ void loop() {
 long getAverageReading(int samples) {
   long sum = 0;
   for (int i = 0; i < samples; i++) {
-    sum += touchSensor.capacitiveSensor(40);
-    delay(5);
+    sum += touchSensor.capacitiveSensor(30);
+    delay(1);
   }
   return sum / samples;
 }
