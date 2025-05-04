@@ -9,6 +9,7 @@ MESSAGE_SERVICE_UUID = "19B10000-E8F2-537E-4F6C-D104768A1214"
 MESSAGE_CHARACTERISTIC_UUID = "19B10001-E8F2-537E-4F6C-D104768A1214"
 DEVICE_NAME = "ArduinoNano33"
 
+# Notification handler
 def handle_notification(sender, data):
     message = data.decode('utf-8')
     print(f"\n[BLE] {message}")
@@ -22,7 +23,7 @@ async def find_arduino():
     print(f"Found {DEVICE_NAME} at {device.address}")
     return device
 
-# Utility to read single keypress without blocking
+# Non-blocking single keypress read (macOS/Linux)
 def is_key_pressed():
     dr, _, _ = select.select([sys.stdin], [], [], 0)
     return dr
