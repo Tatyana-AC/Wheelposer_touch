@@ -19,14 +19,14 @@ This project enables wireless touch detection using an **Arduino Nano 33 BLE** a
 ble-touch-logger/
 ├── ble_touch/
 │   └── ble_touch.ino           # Arduino sketch to send BLE touch messages
-├──     ble_recieve.py          # Python script to log BLE data and save to CSV
+├── ble_recieve.py              # Python script to log BLE data and save to CSV
 ├── README.md                   # Project overview and setup instructions
 └── requirements.txt            # Python dependencies
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Flash the Arduino
 
@@ -68,7 +68,7 @@ CSV files will be saved with timestamps and session names.
 
 ---
 
-## ⚙️ BLE UUIDs
+## BLE UUIDs
 
 Make sure these match in both Arduino and Python files:
 
@@ -79,7 +79,7 @@ MESSAGE_CHARACTERISTIC_UUID = "19B10001-E8F2-537E-4F6C-D104768A1214"
 
 ---
 
-## 📈 Features
+## Features
 
 - BLE communication from Arduino to host
 - Real-time capacitive touch detection
@@ -89,7 +89,7 @@ MESSAGE_CHARACTERISTIC_UUID = "19B10001-E8F2-537E-4F6C-D104768A1214"
 
 ---
 
-## 📦 Python Requirements
+## Python Requirements
 
 Create a `requirements.txt` file with the following:
 
@@ -106,7 +106,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🧠 Future Improvements
+## Future Improvements
 
 - Add real-time plotting
 - GUI interface for session control
@@ -114,6 +114,6 @@ pip install -r requirements.txt
 
 ---
 
-## 📝 License
+## License
 
 MIT License
