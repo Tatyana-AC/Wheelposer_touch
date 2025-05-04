@@ -30,15 +30,13 @@ ble-touch-logger/
 
 ### 1. Flash the Arduino
 
-- Open `Arduino/ble_touch.ino` in the Arduino IDE.
+- Open `ble_touch/ble_touch.ino` in the Arduino IDE.
 - Set board to **Arduino Nano 33 BLE**.
 - Connect and upload the sketch.
 
 **Capacitive Sensor Setup:**
 
-- Connect a 10MΩ resistor between pins **4** (send) and **2** (receive).
-- Touch pin: 2  
-- Send pin: 4
+View Diagram
 
 ---
 
