@@ -65,11 +65,13 @@ pip install -r requirements.txt
 ```
 
 Then run:
-
+for live plotting:
 ```bash
-python ble_recieve.py
-```
+python live_receive.py
 
+for CSV and saved plots:
+```bash
+python ble_receive.py
 ---
 
 ### 3. Controls
