@@ -40,6 +40,22 @@ View Diagram
 
 ---
 
+
+## Python Requirements
+
+Create a `requirements.txt` file with the following:
+
+```
+bleak
+matplotlib
+```
+
+Install via:
+
+```bash
+pip install -r requirements.txt
+```
+---
 ### 2. Run the Python Logger
 
 Install dependencies:
@@ -49,18 +65,19 @@ pip install -r requirements.txt
 ```
 
 Then run:
-
+for live plotting:
 ```bash
-python ble_recieve.py
-```
+python live_receive.py
 
+for CSV and saved plots:
+```bash
+python ble_receive.py
 ---
 
 ### 3. Controls
 
 | Key | Action                    |
 |-----|---------------------------|
-| `s` | Start new session         |
 | `r` | Toggle recording          |
 | `q` | End session & save file   |
 
@@ -87,22 +104,6 @@ MESSAGE_CHARACTERISTIC_UUID = "19B10001-E8F2-537E-4F6C-D104768A1214"
 - Timestamped event data
 - Optional plotting using matplotlib
 
----
-
-## Python Requirements
-
-Create a `requirements.txt` file with the following:
-
-```
-bleak
-matplotlib
-```
-
-Install via:
-
-```bash
-pip install -r requirements.txt
-```
 
 ---
 
